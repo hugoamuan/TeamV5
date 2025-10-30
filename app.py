@@ -11,7 +11,7 @@ import os, time, hashlib, requests, logging
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s %(message)s')
 
 # Path and runtime config for local LLM + caching
-MODEL_PATH = Path(__file__).parent / "models" / "Llama-3.2-1B-Instruct-f16.gguf"
+MODEL_PATH = Path(__file__).parent / "models" / "Llama-3.2-1B-Instruct-Q4_K_M.gguf"
 CACHE_TTL = 60  # cache lifetime in seconds
 JOB_CACHE = {}       # Linkedin search results cache
 SUMMARY_CACHE = {}   # short description summary cache
@@ -20,7 +20,7 @@ DETAIL_CACHE = {}    # full job description cache
 # Load llama.cpp model locally (no OpenAI API)
 llm = Llama(
     model_path=str(MODEL_PATH),
-    n_ctx=2048,                     # max context window
+    n_ctx=1024,                     # max context window
     n_threads=os.cpu_count() or 4,  # auto-optimize concurrency
     verbose=False,
 )
@@ -71,7 +71,7 @@ def chat(req: dict):
     # Returns completion with controlled randomness (temperature=0.4)
     return llm.create_chat_completion(
         messages=req.get("messages", []),
-        max_tokens=512,
+        max_tokens=256,
         temperature=0.4,
     )
 
