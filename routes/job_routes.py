@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from services.scrape_service import fetch_linkedin_jobs
 from services.match_service import job_matches_skills
 from services.scrape_service import fetch_job_details
+from services.llm_service import summarize_job
 
 job_router = APIRouter(prefix="/jobs")
 
@@ -28,6 +29,7 @@ def search_user(req: UserSearch):
         full_desc = details.get("description", "") or ""
 
         if job_matches_skills(full_desc, req.skills):
+            job["ai_summary"] = summarize_job(full_desc, req.skills) + f"\n\nJob URL: {job['url']}"
             filtered.append(job)
 
     return {
