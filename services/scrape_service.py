@@ -5,7 +5,9 @@
 # - extract full job descriptions from job detail pages
 # - maintain simple in-memory caching for speed + rate-limit safety
 # Notes: LinkedIn may change HTML structure so there are fallback selectors.
-
+# 
+# ChatGPT was used to help debug timeout/blocked requests
+# - also helped in matching css selectors
 import time
 import logging
 import requests
