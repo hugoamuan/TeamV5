@@ -1,13 +1,19 @@
 # app.py
+# Main FastAPI application for the AI server
+# Loads the routes, sets CORS and exposes the server's health and model info
+# basically the entry point of the pgoram
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import time, hashlib
 from pathlib import Path
+
 from routes.chat_routes import chat_router
 from routes.job_routes import job_router
 
 MODEL_PATH = Path(__file__).parent / "models" / "Llama-3.2-1B-Instruct-Q4_K_M.gguf"
 
+# initialize the FastAPI app
 app = FastAPI(title="Self-Hosted AI + LinkedIn Job Scraper (RAW)")
 
 app.add_middleware(
@@ -16,7 +22,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+# include both AI chat completion and job scraping + matching endpoints
 app.include_router(chat_router)
 app.include_router(job_router)
 

@@ -1,10 +1,15 @@
 # services/llm_service.py
+# local LLM service wrapper for AI operations
+# This module loads the local GGUF model and exposes chat_completion() and summarize_job()
+# - helps organize FastAPI endpoints in one dedicated place and lightweight
 import os
 from pathlib import Path
 from llama_cpp import Llama
+from .strings import STRINGS
 
 MODEL_PATH = Path(__file__).parent.parent / "models" / "Llama-3.2-1B-Instruct-Q4_K_M.gguf"
 
+# Initialize the model once at import time since it is expensive to do per request
 llm = Llama(
     model_path=str(MODEL_PATH),
     n_ctx=1024,
@@ -12,6 +17,7 @@ llm = Llama(
     verbose=False,
 )
 
+# OpenAI-style chat format 
 def chat_completion(messages: list):
     return llm.create_chat_completion(
         messages=messages,
@@ -19,10 +25,15 @@ def chat_completion(messages: list):
         temperature=0.0,
     )
 
+# Summarizes a job posting into one paragraph using the local LLM
+# Handles:
+#  - Chunking long descriptions to avoid exceeding context size
+#  - avoid hallucinations (plausible but false or fabricated answers)
 def summarize_job(description: str, skills: list[str]):
     if not description:
-        return "No description available."
+        return STRINGS.NO_DESCRIPTION
 
+    # limit the desc size to avoid timeouts
     description = description[:3000]
 
     skill_list = ", ".join(skills)
@@ -59,13 +70,13 @@ def summarize_job(description: str, skills: list[str]):
             return (
                 choice.get("message", {}).get("content")
                 or choice.get("text")
-                or "AI summary unavailable."
+                or STRINGS.SUMMMARY_FAIL
             )
 
         except Exception as e:
             print(f"[summarize_job] Failed with limit={limit}: {e}")
             continue
 
-    return "AI summary could not be generated due to context window limits."
+    return STRINGS.SUMMARY_FAIL
 
 

@@ -1,6 +1,9 @@
 # services/match_service.py
+# Job to skill matching service
+
 import re
 
+# Converts text into lowercase tokens to avoid bad matches such as "Go" in "Google" or "c" in "react"
 def tokenize(text: str):
     """
     Splits text into clean alphanumeric+symbol tokens.
@@ -14,6 +17,9 @@ def tokenize(text: str):
     """
     return re.findall(r"[A-Za-z0-9\+\#]+", text.lower())
 
+# returns true if enough skills appear in the job description
+# Threshold 0.25 = if the user has 4 skills needs 1 match (25%)
+#                  ............... 8 skills ..... 2 matches
 def job_matches_skills(description: str, skills: list[str], threshold: float = 0.25):
     """
     Matches user skills to job description using exact token matching.
@@ -45,6 +51,7 @@ def job_matches_skills(description: str, skills: list[str], threshold: float = 0
         if skill_clean in token_set:
             matched += 1
 
+    # calculate match ratio
     ratio = matched / len(skills) if skills else 0
     return ratio >= threshold
 

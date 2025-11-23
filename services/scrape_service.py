@@ -1,4 +1,10 @@
 # services/scrape_service.py
+# LinkedIn Job Scraping Service
+# - scrape job cards from LinkedIn "seeMoreJobPostings" API
+# - extract summary descriptions from each job page
+# - extract full job descriptions from job detail pages
+# - maintain simple in-memory caching for speed + rate-limit safety
+# Notes: LinkedIn may change HTML structure so there are fallback selectors.
 
 import time
 import logging
@@ -166,6 +172,15 @@ def fetch_linkedin_jobs(keyword: str, location: str, limit: int = 5):
 
 # ------------------------------
 # Fetch Full Job Details
+# 
+# Returns:
+#  {
+#    "title": ...,
+#    "company": ...,
+#    "location": ...,
+#    "description": ...,
+#    "url": ...
+#  }
 # ------------------------------
 
 def fetch_job_details(url: str):
